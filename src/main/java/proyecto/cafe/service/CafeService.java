@@ -26,7 +26,7 @@ public class CafeService {
     }
 
     public ResponseEntity<?> updateCafe(Integer id, Cafe cafe) {
-        Cafe existing = cafeRepository.findById(id);
+        Cafe existing = cafeRepository.findById(id).orElse(null);
         if (existing == null) {
             return ResponseEntity.status(404).body("Café no encontrado.");
         }
@@ -38,7 +38,7 @@ public class CafeService {
     }
 
     public ResponseEntity<?> patchCafe(Integer id, Cafe cafe) {
-        Cafe existing = cafeRepository.findById(id);
+        Cafe existing = cafeRepository.findById(id).orElse(null);
         if (existing == null) {
             return ResponseEntity.status(404).body("Café no encontrado.");
         }
@@ -49,7 +49,7 @@ public class CafeService {
     }
 
     public ResponseEntity<?> deleteCafe(Integer id) {
-        Cafe existing = cafeRepository.findById(id);
+        Cafe existing = cafeRepository.findById(id).orElse(null);
         if (existing == null) {
             return ResponseEntity.status(404).body("Café no encontrado.");
         }
