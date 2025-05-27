@@ -1,11 +1,15 @@
 package proyecto.cafe.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import proyecto.cafe.entity.Cafe;
 import proyecto.cafe.repository.CafeRepository;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,7 +46,7 @@ public class CafeService {
 
     /**
      * Crea un nuevo café.
-     * Valida los campos requeridos y genera un nuevo ID si no se proporciona.
+     * Valida los campos requeridos y permite que la base de datos genere el ID.
      * @param cafe El café a crear
      * @return ResponseEntity con el café creado o mensaje de error
      */
@@ -51,14 +55,12 @@ public class CafeService {
         if (validationResponse != null) {
             return validationResponse;
         }
-        if (cafe.getId() == null) {
-            cafe.setId(generateNewId());
-        } else if (cafeRepository.existsById(cafe.getId())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body("Ya existe un café con el ID " + cafe.getId());
-        }
-        cafeRepository.save(cafe);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cafe);
+        
+        // No permitimos IDs manuales para nuevos cafés
+        cafe.setId(null);
+        
+        Cafe savedCafe = cafeRepository.save(cafe);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCafe);
     }
 
     /**
@@ -80,6 +82,7 @@ public class CafeService {
         if (notFoundResponse != null) {
             return notFoundResponse;
         }
+        
         cafe.setId(id);
         cafeRepository.save(cafe);
         return ResponseEntity.ok(cafe);
@@ -126,20 +129,8 @@ public class CafeService {
         if (notFoundResponse != null) {
             return notFoundResponse;
         }
-        cafeRepository.delete(id);
-        return ResponseEntity.ok().build();
-    }
-
-    /**
-     * Genera un nuevo ID para un café.
-     * El nuevo ID será el máximo ID existente + 1.
-     * @return Nuevo ID generado
-     */
-    private Integer generateNewId() {
-        return cafeRepository.findAll().stream()
-            .mapToInt(Cafe::getId)
-            .max()
-            .orElse(0) + 1;
+        cafeRepository.deleteById(id);
+        return ResponseEntity.ok("Café eliminado correctamente");
     }
 
     /**
@@ -247,5 +238,14 @@ public class CafeService {
             }
             existing.setPrecio(updated.getPrecio());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Cafe> getAllCafes(Pageable pageable) {
+        return cafeRepository.findAll(pageable);
+    }
+
+    public Optional<Cafe> getCafeById(Integer id) {
+        return cafeRepository.findById(id);
     }
 }

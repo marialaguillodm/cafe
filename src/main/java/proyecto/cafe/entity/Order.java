@@ -1,111 +1,111 @@
 package proyecto.cafe.entity;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa una orden en el sistema.
- * Esta entidad almacena la información de una orden, incluyendo el cliente que la realizó,
- * los items de la orden y el total calculado.
+ * Represents an order in the system.
+ * This entity stores order information,
+ * including customer, items and total.
  * @author Maria
  * @version 1.0
  */
+@Entity
+@Table(name = "orders")
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer customerId;
-    private List<OrderItem> items;
-    private double total;
-    private LocalDateTime fechaCreacion;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "order_id")
+    private List<OrderItem> items = new ArrayList<>();
+
+    private Double total;
+
+    @Column(nullable = false)
+    private LocalDateTime creationDate;
 
     /**
      * Constructor por defecto.
      */
     public Order() {
+        this.creationDate = LocalDateTime.now();
     }
 
     /**
      * Constructor con todos los campos.
      * @param id Identificador único de la orden
-     * @param customerId Cliente que realizó la orden
+     * @param customer Cliente de la orden
      * @param items Lista de items en la orden
      */
-    public Order(Integer id, Integer customerId, List<OrderItem> items) {
+    public Order(Integer id, Customer customer, List<OrderItem> items) {
         this.id = id;
-        this.customerId = customerId;
+        this.customer = customer;
         this.items = items;
-        this.fechaCreacion = LocalDateTime.now();
-        calculateTotal();
-    }
-
-    public void calculateTotal() {
-        this.total = items.stream().mapToDouble(i -> i.getPrecio() * i.getCantidad()).sum();
+        this.creationDate = LocalDateTime.now();
     }
 
     /**
-     * Obtiene el identificador único de la orden.
-     * @return ID de la orden
+     * Calcula el total de la orden multiplicando el precio unitario por la cantidad de cada item.
+     * El precio unitario se obtiene del café y la cantidad se especifica en el item.
      */
+    public void calculateTotal() {
+        if (items != null) {
+            this.total = items.stream()
+                .filter(item -> item.getPrecio() != null)
+                .mapToDouble(item -> item.getPrecio() * item.getCantidad())
+                .sum();
+        } else {
+            this.total = 0.0;
+        }
+    }
+
     public Integer getId() {
         return id;
     }
 
-    /**
-     * Establece el identificador único de la orden.
-     * @param id Nuevo ID de la orden
-     */
     public void setId(Integer id) {
         this.id = id;
     }
 
-    /**
-     * Obtiene el cliente que realizó la orden.
-     * @return Cliente de la orden
-     */
-    public Integer getCustomerId() {
-        return customerId;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    /**
-     * Establece el cliente que realizó la orden.
-     * @param customerId Nuevo cliente de la orden
-     */
-    public void setCustomerId(Integer customerId) {
-        this.customerId = customerId;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
-    /**
-     * Obtiene la lista de items en la orden.
-     * @return Lista de items de la orden
-     */
     public List<OrderItem> getItems() {
         return items;
     }
 
-    /**
-     * Establece la lista de items en la orden.
-     * @param items Nueva lista de items de la orden
-     */
     public void setItems(List<OrderItem> items) {
         this.items = items;
+        calculateTotal();
     }
 
-    /**
-     * Obtiene el total calculado de la orden.
-     * @return Total de la orden
-     */
-    public double getTotal() {
+    public Double getTotal() {
         return total;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
+    public void setTotal(Double total) {
+        this.total = total;
     }
 
-    /**
-     * Establece la fecha de creación de la orden.
-     * @param fechaCreacion Nueva fecha de creación
-     */
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafetería - Cafés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Cafetería</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/pages/cafes">Cafés</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/customers">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/orders">Órdenes</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Gestión de Cafés</h2>
+        
+        <!-- Formulario para añadir nuevo café -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Añadir Nuevo Café
+            </div>
+            <div class="card-body">
+                <form id="cafeForm">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="precio" class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="precio" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Añadir Café</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla de cafés -->
+        <div class="card">
+            <div class="card-header">
+                Lista de Cafés
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cafesTableBody">
+                        <!-- Los datos se cargarán dinámicamente -->
+                    </tbody>
+                </table>
+                <div id="pagination" class="mt-3">
+                    <!-- Los controles de paginación se cargarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variable global para controlar el modo de edición
+        let isEditing = false;
+        let editingId = null;
+
+        // Variables globales para la paginación
+        let currentPage = 0;
+        const pageSize = 10;
+        let totalPages = 0;
+
+        // Función para cargar los cafés
+        async function cargarCafes(page = 0) {
+            try {
+                const response = await fetch(`/api/cafes?page=${page}&size=${pageSize}`);
+                const data = await response.json();
+                const tbody = document.getElementById('cafesTableBody');
+                tbody.innerHTML = '';
+                
+                // Actualizar datos de paginación
+                currentPage = data.number;
+                totalPages = data.totalPages;
+                
+                // Actualizar la tabla
+                data.content.forEach(cafe => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${cafe.id}</td>
+                            <td>${cafe.nombre}</td>
+                            <td>${cafe.descripcion}</td>
+                            <td>${cafe.precio}€</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editarCafe(${cafe.id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarCafe(${cafe.id})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Actualizar controles de paginación
+                actualizarControlesPaginacion();
+            } catch (error) {
+                console.error('Error al cargar cafés:', error);
+            }
+        }
+
+        // Función para actualizar los controles de paginación
+        function actualizarControlesPaginacion() {
+            const paginationContainer = document.getElementById('pagination');
+            paginationContainer.innerHTML = `
+                <nav aria-label="Navegación de páginas">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="cambiarPagina(${currentPage - 1})">Anterior</a>
+                        </li>
+                        ${generarBotonesPaginacion()}
+                        <li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="cambiarPagina(${currentPage + 1})">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            `;
+        }
+
+        // Función para generar los botones de paginación
+        function generarBotonesPaginacion() {
+            let botones = '';
+            const maxBotones = 5;
+            let inicio = Math.max(0, currentPage - Math.floor(maxBotones / 2));
+            let fin = Math.min(totalPages - 1, inicio + maxBotones - 1);
+
+            if (fin - inicio + 1 < maxBotones) {
+                inicio = Math.max(0, fin - maxBotones + 1);
+            }
+
+            for (let i = inicio; i <= fin; i++) {
+                botones += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="cambiarPagina(${i})">${i + 1}</a>
+                    </li>
+                `;
+            }
+            return botones;
+        }
+
+        // Función para cambiar de página
+        function cambiarPagina(nuevaPagina) {
+            if (nuevaPagina >= 0 && nuevaPagina < totalPages) {
+                cargarCafes(nuevaPagina);
+            }
+        }
+
+        // Función para editar un café
+        async function editarCafe(id) {
+            try {
+                const response = await fetch(`/api/cafes/${id}`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar los datos del café');
+                }
+                const cafe = await response.json();
+                
+                // Rellenar el formulario con los datos del café
+                document.getElementById('nombre').value = cafe.nombre;
+                document.getElementById('descripcion').value = cafe.descripcion;
+                document.getElementById('precio').value = cafe.precio;
+                
+                // Cambiar el botón de submit a "Actualizar"
+                const submitButton = document.querySelector('#cafeForm button[type="submit"]');
+                submitButton.textContent = 'Actualizar Café';
+                
+                // Activar modo edición
+                isEditing = true;
+                editingId = id;
+            } catch (error) {
+                console.error('Error al cargar datos del café:', error);
+                alert('Error al cargar datos del café');
+            }
+        }
+
+        // Función para añadir un nuevo café
+        document.getElementById('cafeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (isEditing) {
+                // Modo actualización
+                const cafeActualizado = {
+                    id: editingId,
+                    nombre: document.getElementById('nombre').value,
+                    descripcion: document.getElementById('descripcion').value,
+                    precio: parseFloat(document.getElementById('precio').value)
+                };
+
+                try {
+                    const response = await fetch(`/api/cafes/${editingId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cafeActualizado)
+                    });
+
+                    if (response.ok) {
+                        await cargarCafes();
+                        this.reset();
+                        // Restaurar modo creación
+                        isEditing = false;
+                        editingId = null;
+                        const submitButton = document.querySelector('#cafeForm button[type="submit"]');
+                        submitButton.textContent = 'Añadir Café';
+                    } else {
+                        const error = await response.text();
+                        alert('Error al actualizar el café: ' + error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al actualizar el café');
+                }
+            } else {
+                // Modo creación
+                const cafe = {
+                    nombre: document.getElementById('nombre').value,
+                    descripcion: document.getElementById('descripcion').value,
+                    precio: parseFloat(document.getElementById('precio').value)
+                };
+
+                try {
+                    const response = await fetch('/api/cafes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cafe)
+                    });
+
+                    if (response.ok) {
+                        await cargarCafes();
+                        this.reset();
+                    } else {
+                        const error = await response.text();
+                        alert('Error al crear el café: ' + error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al crear el café');
+                }
+            }
+        });
+
+        // Función para eliminar un café
+        async function eliminarCafe(id) {
+            if (confirm('¿Está seguro de eliminar este café?')) {
+                try {
+                    const response = await fetch(`/api/cafes/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        await cargarCafes();
+                    } else {
+                        alert('Error al eliminar el café');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el café');
+                }
+            }
+        }
+
+        // Cargar cafés al iniciar la página
+        cargarCafes();
+    </script>
+</body>
+</html> 

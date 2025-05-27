@@ -1,92 +1,115 @@
 package proyecto.cafe.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import proyecto.cafe.entity.Customer;
 import proyecto.cafe.repository.CustomerRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Servicio que maneja la lógica de negocio relacionada con los clientes.
- * Proporciona operaciones CRUD y validaciones para la entidad Customer.
+ * Service for managing customers.
+ * Provides business logic for customer operations.
  * @author Maria
  * @version 1.0
  */
 @Service
 public class CustomerService {
 
-    private final CustomerRepository customerRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     /**
-     * Constructor que inyecta el repositorio de clientes.
-     * @param customerRepository Repositorio para acceder a los datos de clientes
+     * Get all customers.
+     * @return List of all customers or empty message
      */
-    public CustomerService(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    public ResponseEntity<?> obtenerTodos() {
+        List<Customer> customers = customerRepository.findAll();
+        if (customers.isEmpty()) {
+            return ResponseEntity.ok("No hay clientes registrados");
+        }
+        return ResponseEntity.ok(customers);
     }
 
     /**
-     * Crea un nuevo cliente.
-     * Valida los campos requeridos antes de guardar.
-     * @param customer El cliente a crear
-     * @return ResponseEntity con el cliente creado o mensaje de error
+     * Create a new customer.
+     * @param customer Customer to create
+     * @return Created customer or error message
      */
-    public ResponseEntity<?> crearCliente(Customer customer) {
-        ResponseEntity<?> validationResponse = validateCustomerFields(customer);
-        if (validationResponse != null) {
-            return validationResponse;
+    @Transactional
+    public ResponseEntity<?> crearCustomer(Customer customer) {
+        if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("El nombre del cliente no puede estar vacío");
         }
-        // Generar nuevo ID si no existe
-        if (customer.getId() == null) {
-            customer.setId(generateNewId());
+        if (customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("El email del cliente no puede estar vacío");
         }
-        customerRepository.save(customer);
-        return ResponseEntity.status(HttpStatus.CREATED).body(customer);
+        return ResponseEntity.ok(customerRepository.save(customer));
     }
 
     /**
-     * Actualiza completamente un cliente existente.
-     * @param id ID del cliente a actualizar
-     * @param customer Nuevos datos del cliente
-     * @return ResponseEntity con el cliente actualizado o mensaje de error
+     * Update an existing customer.
+     * @param id Customer ID
+     * @param customer Updated customer data
+     * @return Updated customer or error message
      */
-    public ResponseEntity<?> actualizarCliente(Integer id, Customer customer) {
-        ResponseEntity<?> idValidation = validateId(id);
-        if (idValidation != null) {
-            return idValidation;
-        }
-        ResponseEntity<?> customerValidation = validateCustomerFields(customer);
-        if (customerValidation != null) {
-            return customerValidation;
-        }
-        ResponseEntity<?> notFoundResponse = validateCustomerExists(id);
-        if (notFoundResponse != null) {
-            return notFoundResponse;
+    @Transactional
+    public ResponseEntity<?> actualizarCustomer(Integer id, Customer customer) {
+        if (!customerRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
         customer.setId(id);
-        customerRepository.save(customer);
-        return ResponseEntity.ok(customer);
+        if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("El nombre del cliente no puede estar vacío");
+        }
+        if (customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("El email del cliente no puede estar vacío");
+        }
+        return ResponseEntity.ok(customerRepository.save(customer));
     }
 
     /**
-     * Elimina un cliente por su ID.
-     * @param id ID del cliente a eliminar
-     * @return ResponseEntity con mensaje de éxito o error
+     * Partially update an existing customer.
+     * @param id Customer ID
+     * @param customer Partial customer data
+     * @return Updated customer or error message
      */
-    public ResponseEntity<?> eliminarCliente(Integer id) {
-        ResponseEntity<?> idValidation = validateId(id);
-        if (idValidation != null) {
-            return idValidation;
+    public ResponseEntity<?> actualizarParcialmenteCustomer(Integer id, Customer customer) {
+        Optional<Customer> existingCustomer = customerRepository.findById(id);
+        if (existingCustomer.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-        ResponseEntity<?> notFoundResponse = validateCustomerExists(id);
-        if (notFoundResponse != null) {
-            return notFoundResponse;
+        
+        Customer updatedCustomer = existingCustomer.get();
+        if (customer.getName() != null) {
+            updatedCustomer.setName(customer.getName());
         }
-        customerRepository.delete(id);
-        return ResponseEntity.ok().build();
+        if (customer.getEmail() != null) {
+            updatedCustomer.setEmail(customer.getEmail());
+        }
+        
+        return ResponseEntity.ok(customerRepository.save(updatedCustomer));
+    }
+
+    /**
+     * Delete a customer.
+     * @param id Customer ID
+     * @return Success message or error
+     */
+    @Transactional
+    public ResponseEntity<?> eliminarCustomer(Integer id) {
+        if (!customerRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        customerRepository.deleteById(id);
+        return ResponseEntity.ok("Cliente eliminado correctamente");
     }
 
     /**
@@ -125,19 +148,19 @@ public class CustomerService {
         if (objectValidation != null) {
             return objectValidation;
         }
-        return validateString(customer.getUsuario(), "usuario");
+        return validateString(customer.getName(), "nombre");
     }
 
     /**
      * Valida que una cadena no sea nula o vacía.
      * @param value Cadena a validar
-     * @param fieldUsuario Nombre del campo para el mensaje de error
+     * @param fieldName Nombre del campo para el mensaje de error
      * @return ResponseEntity con mensaje de error si es inválida, null si es válida
      */
-    private ResponseEntity<?> validateString(String value, String fieldUsuario) {
+    private ResponseEntity<?> validateString(String value, String fieldName) {
         if (value == null || value.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("El campo " + fieldUsuario + " es obligatorio.");
+                .body("El campo " + fieldName + " es obligatorio.");
         }
         return null;
     }
@@ -165,6 +188,61 @@ public class CustomerService {
             .mapToInt(Customer::getId)
             .max()
             .orElse(0) + 1;
+    }
+
+    /**
+     * Get a customer by ID.
+     * @param id Customer ID
+     * @return Customer or error message
+     */
+    public ResponseEntity<?> obtenerCustomerPorId(Integer id) {
+        Optional<Customer> customer = customerRepository.findById(id);
+        if (customer.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(customer.get());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Customer> getAllCustomers(Pageable pageable) {
+        return customerRepository.findAll(pageable);
+    }
+
+    public Optional<Customer> getCustomerById(Integer id) {
+        return customerRepository.findById(id);
+    }
+
+    @Transactional
+    public Customer createCustomer(Customer customer) {
+        if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del cliente no puede estar vacío");
+        }
+        if (customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("El email del cliente no puede estar vacío");
+        }
+        return customerRepository.save(customer);
+    }
+
+    @Transactional
+    public Customer updateCustomer(Customer customer) {
+        if (!customerRepository.existsById(customer.getId())) {
+            throw new IllegalArgumentException("Cliente no encontrado");
+        }
+        if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del cliente no puede estar vacío");
+        }
+        if (customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("El email del cliente no puede estar vacío");
+        }
+        return customerRepository.save(customer);
+    }
+
+    @Transactional
+    public void deleteCustomer(Integer id) {
+        if (!customerRepository.existsById(id)) {
+            throw new IllegalArgumentException("Cliente no encontrado");
+        }
+        customerRepository.deleteById(id);
     }
 }
 

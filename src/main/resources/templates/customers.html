@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafetería - Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Cafetería</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/cafes">Cafés</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/pages/customers">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/orders">Órdenes</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Gestión de Clientes</h2>
+        
+        <!-- Formulario para añadir nuevo cliente -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Añadir Nuevo Cliente
+            </div>
+            <div class="card-body">
+                <form id="customerForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Añadir Cliente</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla de clientes -->
+        <div class="card">
+            <div class="card-header">
+                Lista de Clientes
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody">
+                        <!-- Los datos se cargarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variable global para controlar el modo de edición
+        let isEditing = false;
+        let editingId = null;
+
+        // Función para cargar los clientes
+        async function cargarClientes() {
+            try {
+                const response = await fetch('/api/customers');
+                const data = await response.json();
+                const tbody = document.getElementById('customersTableBody');
+                tbody.innerHTML = '';
+                data.forEach(cliente => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${cliente.id}</td>
+                            <td>${cliente.name}</td>
+                            <td>${cliente.email}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editarCliente(${cliente.id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarCliente(${cliente.id})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error al cargar clientes:', error);
+            }
+        }
+
+        // Función para editar un cliente
+        async function editarCliente(id) {
+            try {
+                const response = await fetch(`/api/customers/${id}`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar los datos del cliente');
+                }
+                const cliente = await response.json();
+                
+                // Rellenar el formulario con los datos del cliente
+                document.getElementById('name').value = cliente.name;
+                document.getElementById('email').value = cliente.email;
+                
+                // Cambiar el botón de submit a "Actualizar"
+                const submitButton = document.querySelector('#customerForm button[type="submit"]');
+                submitButton.textContent = 'Actualizar Cliente';
+                
+                // Activar modo edición
+                isEditing = true;
+                editingId = id;
+            } catch (error) {
+                console.error('Error al cargar datos del cliente:', error);
+                alert('Error al cargar datos del cliente');
+            }
+        }
+
+        // Función para añadir un nuevo cliente
+        document.getElementById('customerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (isEditing) {
+                // Modo actualización
+                const clienteActualizado = {
+                    id: editingId,
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value
+                };
+
+                try {
+                    const response = await fetch(`/api/customers/${editingId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(clienteActualizado)
+                    });
+
+                    if (response.ok) {
+                        await cargarClientes();
+                        this.reset();
+                        // Restaurar modo creación
+                        isEditing = false;
+                        editingId = null;
+                        const submitButton = document.querySelector('#customerForm button[type="submit"]');
+                        submitButton.textContent = 'Añadir Cliente';
+                    } else {
+                        const error = await response.text();
+                        alert('Error al actualizar el cliente: ' + error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al actualizar el cliente');
+                }
+            } else {
+                // Modo creación
+                const cliente = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value
+                };
+
+                try {
+                    const response = await fetch('/api/customers', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cliente)
+                    });
+
+                    if (response.ok) {
+                        await cargarClientes();
+                        this.reset();
+                    } else {
+                        const error = await response.text();
+                        alert('Error al crear el cliente: ' + error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al crear el cliente');
+                }
+            }
+        });
+
+        // Función para eliminar un cliente
+        async function eliminarCliente(id) {
+            if (confirm('¿Está seguro de eliminar este cliente?')) {
+                try {
+                    const response = await fetch(`/api/customers/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        await cargarClientes();
+                    } else {
+                        alert('Error al eliminar el cliente');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el cliente');
+                }
+            }
+        }
+
+        // Cargar clientes al iniciar la página
+        cargarClientes();
+    </script>
+</body>
+</html> 

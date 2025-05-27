@@ -1,14 +1,26 @@
 package proyecto.cafe.entity;
 
+import jakarta.persistence.*;
+
 /**
- * Representa un cliente en el sistema.
- * Esta entidad almacena la información básica de un cliente, id y Usuario
+ * Represents a customer in the system.
+ * This entity stores basic customer information,
+ * including name and email.
  * @author Maria
  * @version 1.0
  */
+@Entity
+@Table(name = "customers")
 public class Customer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String usuario;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    private String email;
 
     /**
      * Constructor por defecto.
@@ -19,11 +31,13 @@ public class Customer {
     /**
      * Constructor con todos los campos.
      * @param id Identificador único del cliente
-     * @param usuario Usuario del cliente
+     * @param name Nombre del cliente
+     * @param email Correo electrónico del cliente
      */
-    public Customer(Integer id, String usuario) {
+    public Customer(Integer id, String name, String email) {
         this.id = id;
-        this.usuario = usuario;
+        this.name = name;
+        this.email = email;
     }
 
     /**
@@ -43,19 +57,34 @@ public class Customer {
     }
 
     /**
-     * Obtiene el Usuario del cliente.
-     * @return usuario del cliente
+     * Obtiene el nombre del cliente.
+     * @return Nombre del cliente
      */
-    public String getUsuario() {
-        return usuario;
+    public String getName() {
+        return name;
     }
 
     /**
      * Establece el nombre del cliente.
-     * @param usuario Nuevo Usuario del cliente
+     * @param name Nuevo nombre del cliente
      */
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    /**
+     * Obtiene el correo electrónico del cliente.
+     * @return Correo electrónico del cliente
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Establece el correo electrónico del cliente.
+     * @param email Nuevo correo electrónico del cliente
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

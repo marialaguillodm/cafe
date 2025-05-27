@@ -1,13 +1,23 @@
 package proyecto.cafe.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 /**
- * Representa un producto de café en el sistema.
- * Esta entidad almacena la información básica de un café, id, nombre,
- * descripción y precio.
+ * Representa un café en el sistema.
+ * Esta entidad almacena la información básica de un café,
+ * incluyendo su nombre, descripción y precio.
  * @author Maria
  * @version 1.0
  */
+@Entity
+@Table(name = "cafes")
 public class Cafe {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nombre;
     private String descripcion;
