@@ -34,7 +34,7 @@
         
         <!-- Formulario para añadir nuevo cliente -->
         <div class="card mb-4">
-            <div class="card-header">
+            <div class="card-header" id="formHeader">
                 Añadir Nuevo Cliente
             </div>
             <div class="card-body">
@@ -48,6 +48,7 @@
                         <input type="email" class="form-control" id="email" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Añadir Cliente</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEdit" style="display: none;" onclick="cancelarEdicion()">Cancelar</button>
                 </form>
             </div>
         </div>
@@ -169,6 +170,25 @@
             }
         }
 
+        // Función para cancelar la edición
+        function cancelarEdicion() {
+            // Limpiar el formulario
+            document.getElementById('customerForm').reset();
+            
+            // Restaurar modo creación
+            isEditing = false;
+            editingId = null;
+            
+            // Cambiar el botón de submit a "Añadir Cliente"
+            const submitButton = document.querySelector('#customerForm button[type="submit"]');
+            submitButton.textContent = 'Añadir Cliente';
+            
+            // Ocultar el botón de cancelar
+            document.getElementById('cancelEdit').style.display = 'none';
+            // Restaurar el encabezado original
+            document.getElementById('formHeader').textContent = 'Añadir Nuevo Cliente';
+        }
+
         // Función para editar un cliente
         async function editarCliente(id) {
             try {
@@ -185,6 +205,12 @@
                 // Cambiar el botón de submit a "Actualizar"
                 const submitButton = document.querySelector('#customerForm button[type="submit"]');
                 submitButton.textContent = 'Actualizar Cliente';
+                
+                // Mostrar el botón de cancelar
+                document.getElementById('cancelEdit').style.display = 'inline-block';
+
+                // Cambiar el encabezado
+                document.getElementById('formHeader').textContent = 'Editar Cliente';
                 
                 // Activar modo edición
                 isEditing = true;
@@ -224,6 +250,8 @@
                         editingId = null;
                         const submitButton = document.querySelector('#customerForm button[type="submit"]');
                         submitButton.textContent = 'Añadir Cliente';
+                        // Ocultar el botón de cancelar
+                        document.getElementById('cancelEdit').style.display = 'none';
                     } else {
                         const error = await response.text();
                         alert('Error al actualizar el cliente: ' + error);

@@ -34,7 +34,7 @@
         
         <!-- Formulario para añadir nuevo café -->
         <div class="card mb-4">
-            <div class="card-header">
+            <div class="card-header" id="formHeader">
                 Añadir Nuevo Café
             </div>
             <div class="card-body">
@@ -52,6 +52,7 @@
                         <input type="number" class="form-control" id="precio" step="0.01" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Añadir Café</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEdit" style="display: none;" onclick="cancelarEdicion()">Cancelar</button>
                 </form>
             </div>
         </div>
@@ -85,14 +86,32 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Variable global para controlar el modo de edición
+        // Variables globales para controlar el modo de edición y paginación
         let isEditing = false;
         let editingId = null;
-
-        // Variables globales para la paginación
         let currentPage = 0;
         const pageSize = 10;
         let totalPages = 0;
+
+        // Función para cancelar la edición
+        function cancelarEdicion() {
+            // Limpiar el formulario
+            document.getElementById('cafeForm').reset();
+            
+            // Restaurar modo creación
+            isEditing = false;
+            editingId = null;
+            
+            // Cambiar el botón de submit a "Añadir Café"
+            const submitButton = document.querySelector('#cafeForm button[type="submit"]');
+            submitButton.textContent = 'Añadir Café';
+            
+            // Ocultar el botón de cancelar
+            document.getElementById('cancelEdit').style.display = 'none';
+
+            // Restaurar el encabezado original
+            document.getElementById('formHeader').textContent = 'Añadir Nuevo Café';
+        }
 
         // Función para cargar los cafés
         async function cargarCafes(page = 0) {
@@ -193,6 +212,12 @@
                 const submitButton = document.querySelector('#cafeForm button[type="submit"]');
                 submitButton.textContent = 'Actualizar Café';
                 
+                // Mostrar el botón de cancelar
+                document.getElementById('cancelEdit').style.display = 'inline-block';
+
+                // Cambiar el encabezado
+                document.getElementById('formHeader').textContent = 'Editar Café';
+                
                 // Activar modo edición
                 isEditing = true;
                 editingId = id;
@@ -232,6 +257,8 @@
                         editingId = null;
                         const submitButton = document.querySelector('#cafeForm button[type="submit"]');
                         submitButton.textContent = 'Añadir Café';
+                        // Ocultar el botón de cancelar
+                        document.getElementById('cancelEdit').style.display = 'none';
                     } else {
                         const error = await response.text();
                         alert('Error al actualizar el café: ' + error);

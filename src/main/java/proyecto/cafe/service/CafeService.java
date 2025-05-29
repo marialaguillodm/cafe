@@ -76,22 +76,9 @@ public class CafeService {
         return ResponseEntity.ok(cafe);
     }
 
-    /**
-     * Elimina un café por su ID.
-     * @param id ID del café a eliminar
-     * @return ResponseEntity con mensaje de éxito o error
-     */
-    public ResponseEntity<?> eliminarCafe(Integer id) {
-        ResponseEntity<?> idValidation = validateId(id);
-        if (idValidation != null) {
-            return idValidation;
-        }
-        ResponseEntity<?> notFoundResponse = validateCafeExists(id);
-        if (notFoundResponse != null) {
-            return notFoundResponse;
-        }
+    @Transactional
+    public void eliminarCafe(Integer id) {
         cafeRepository.deleteById(id);
-        return ResponseEntity.ok("Café eliminado correctamente");
     }
 
     /**
