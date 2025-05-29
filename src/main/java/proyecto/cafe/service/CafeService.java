@@ -31,18 +31,6 @@ public class CafeService {
         this.cafeRepository = cafeRepository;
     }
 
-    /**
-     * Obtiene todos los cafés registrados.
-     * @return ResponseEntity con la lista de cafés o mensaje si no hay registros
-     */
-    public ResponseEntity<?> obtenerTodos() {
-        Collection<Cafe> cafes = cafeRepository.findAll();
-        if (cafes.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body("No hay cafés registrados.");
-        }
-        return ResponseEntity.ok(cafes);
-    }
 
     /**
      * Crea un nuevo café.
@@ -86,33 +74,6 @@ public class CafeService {
         cafe.setId(id);
         cafeRepository.save(cafe);
         return ResponseEntity.ok(cafe);
-    }
-
-    /**
-     * Actualiza parcialmente un café existente.
-     * Solo actualiza los campos no nulos del café proporcionado.
-     * @param id ID del café a actualizar
-     * @param cafe Datos parciales del café
-     * @return ResponseEntity con el café actualizado o mensaje de error
-     */
-    public ResponseEntity<?> actualizarParcialmenteCafe(Integer id, Cafe cafe) {
-        ResponseEntity<?> idValidation = validateId(id);
-        if (idValidation != null) {
-            return idValidation;
-        }
-        ResponseEntity<?> objectValidation = validateObject(cafe);
-        if (objectValidation != null) {
-            return objectValidation;
-        }
-        Optional<Cafe> existingOpt = cafeRepository.findById(id);
-        if (existingOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Café no encontrado.");
-        }
-        Cafe existing = existingOpt.get();
-        updateCafeFields(existing, cafe);
-        cafeRepository.save(existing);
-        return ResponseEntity.ok(existing);
     }
 
     /**
