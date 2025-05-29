@@ -88,7 +88,7 @@ public class CafeController {
             if (cafe == null || cafe.getNombre() == null || cafe.getPrecio() == null) {
                 return ResponseEntity.badRequest().body("El café debe incluir nombre y precio");
             }
-            ResponseEntity<?> savedCafe = cafeService.crearCafe(cafe);
+            Cafe savedCafe = cafeService.crearCafe(cafe);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCafe);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -110,7 +110,7 @@ public class CafeController {
                 return ResponseEntity.badRequest().body("El café debe incluir nombre y precio");
             }
             cafe.setId(id);
-            ResponseEntity<?> updatedCafe = cafeService.actualizarCafe(id,cafe);
+            Cafe updatedCafe = cafeService.actualizarCafe(cafe);
             return ResponseEntity.ok(updatedCafe);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
