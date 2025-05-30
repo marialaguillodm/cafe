@@ -7,7 +7,6 @@ Sistema de gestión para una cafetería que permite administrar productos (café
 - Java 17
 - Spring Boot 3.x
 - Spring Data JPA
-- Thymeleaf
 - Bootstrap 5.3.0
 - MySQL
 - Maven
@@ -31,12 +30,33 @@ Sistema de gestión para una cafetería que permite administrar productos (café
 
 ## Estructura del Proyecto
 ```
-src/main/java/proyecto/cafe/
-├── controller/    # Controladores REST y MVC
-├── entity/        # Entidades JPA
-├── repository/    # Repositorios de datos
-├── service/       # Lógica de negocio
-└── Application.java
+src/main/
+├── java/proyecto/cafe/
+│   ├── controller/    # Controladores REST y MVC
+│   │   ├── CafeController.java
+│   │   ├── CustomerController.java
+│   │   ├── OrderController.java
+│   │   └── WebController.java
+│   ├── entity/        # Entidades JPA
+│   │   ├── Cafe.java
+│   │   ├── Customer.java
+│   │   ├── Order.java
+│   │   └── OrderItem.java
+│   ├── repository/    # Repositorios de datos
+│   │   ├── CafeRepository.java
+│   │   ├── CustomerRepository.java
+│   │   └── OrderRepository.java
+│   ├── service/       # Lógica de negocio
+│   │   ├── CafeService.java
+│   │   ├── CustomerService.java
+│   │   └── OrderService.java
+│   └── Application.java
+└── resources/
+    └── templates/     # Plantillas HTML
+        ├── index.html
+        ├── cafes.html
+        ├── customers.html
+        └── orders.html
 ```
 
 ## Requisitos
@@ -47,14 +67,14 @@ src/main/java/proyecto/cafe/
 ## Configuración
 1. Clonar el repositorio
 ```bash
-git clone [url-del-repositorio]
+git clone https://github.com/marialaguillodm/cafe
 ```
 
 2. Configurar la base de datos en `application.properties`
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/cafe_db
-spring.datasource.username=tu_usuario
-spring.datasource.password=tu_password
+spring.datasource.username=root
+spring.datasource.password=admin
 ```
 
 3. Compilar el proyecto
@@ -74,35 +94,8 @@ mvn spring-boot:run
    - `/pages/customers` - Gestión de clientes
    - `/pages/orders` - Gestión de órdenes
 
-## API REST
-### Cafés
-- `GET /api/cafes` - Listar todos los cafés
-- `POST /api/cafes` - Crear un nuevo café
-- `PUT /api/cafes/{id}` - Actualizar un café
-- `DELETE /api/cafes/{id}` - Eliminar un café
-
-### Clientes
-- `GET /api/customers` - Listar todos los clientes
-- `POST /api/customers` - Crear un nuevo cliente
-- `PUT /api/customers/{id}` - Actualizar un cliente
-- `DELETE /api/customers/{id}` - Eliminar un cliente
-
-### Órdenes
-- `GET /api/orders` - Listar todas las órdenes
-- `POST /api/orders` - Crear una nueva orden
-- `DELETE /api/orders/{id}` - Eliminar una orden
-- `GET /api/orders/customer/{customerId}` - Obtener órdenes por cliente
-
-## Contribución
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
-
 ## Autor
 Maria
 
 ## Versión
 1.5
-
