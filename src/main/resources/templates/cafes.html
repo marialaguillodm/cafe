@@ -308,11 +308,16 @@
                     if (response.ok) {
                         await cargarCafes();
                     } else {
-                        alert('Error al eliminar el café');
+                        const errorText = await response.text();
+                        if (errorText.includes("foreign key constraint") || errorText.includes("FK")) {
+                            alert('No se puede eliminar este café porque está asociado a órdenes existentes.\n\nPor favor, elimine primero todas las órdenes que contengan este café antes de eliminarlo.');
+                        } else {
+                            alert('Error al eliminar el café: ' + errorText);
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al eliminar el café');
+                    alert('Error al eliminar el café. Por favor, intente nuevamente.');
                 }
             }
         }
