@@ -32,18 +32,11 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class CafeController {
 
-    private final CafeService cafeService;
-    private final OrderService orderService;
+    @Autowired
+    private CafeService cafeService;
 
-    /**
-     * Constructor que inyecta el servicio de cafés y el servicio de pedidos.
-     * @param cafeService Servicio que maneja la lógica de negocio de cafés
-     * @param orderService Servicio que maneja la lógica de negocio de pedidos
-     */
-    public CafeController(CafeService cafeService, OrderService orderService) {
-        this.cafeService = cafeService;
-        this.orderService = orderService;
-    }
+    @Autowired
+    private OrderService orderService;
 
     /**
      * Obtiene todos los cafés registrados.

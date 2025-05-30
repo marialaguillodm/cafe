@@ -69,6 +69,11 @@ public class OrderController {
         }
     }
 
+    /**
+     * Obtiene todas las órdenes asociadas a un cliente.
+     * @param customerId ID del cliente
+     * @return Lista de órdenes del cliente o mensaje de error
+     */
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<?> getOrdersByCustomerId(@PathVariable Integer customerId) {
         try {
