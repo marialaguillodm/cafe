@@ -10,13 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 import proyecto.cafe.entity.Cafe;
 import proyecto.cafe.entity.Customer;
 import proyecto.cafe.repository.CafeRepository;
+import java.util.List;
 import java.util.Optional;
 
 /**
- * Servicio que maneja la lógica de negocio relacionada con los cafés.
- * Proporciona operaciones CRUD y validaciones para la entidad Cafe.
+ * Servicio para la gestión de cafés en el sistema.
+ * Proporciona métodos para realizar operaciones CRUD y consultas
+ * sobre la entidad Cafe.
+ * 
  * @author Maria
- * @version 1.0
+ * @version 1.5
  */
 @Service
 public class CafeService {
@@ -25,10 +28,10 @@ public class CafeService {
     private CafeRepository cafeRepository;
 
     /**
-     * Crea un nuevo café.
-     * Valida los campos requeridos y permite que la base de datos genere el ID.
-     * @param cafe El café a crear
-     * @return ResponseEntity con el café creado o mensaje de error
+     * Crea un nuevo café en el sistema.
+     * 
+     * @param cafe Café a crear
+     * @return Café creado con su ID asignado
      */
     @Transactional
     public Cafe crearCafe(Cafe cafe) {
@@ -45,9 +48,10 @@ public class CafeService {
     }
 
     /**
-     * Actualiza completamente un café existente.
-     * @param cafe Nuevos datos del café
-     * @return ResponseEntity con el café actualizado o mensaje de error
+     * Actualiza un café existente en el sistema.
+     * 
+     * @param cafe Café con los datos actualizados
+     * @return Café actualizado
      */
     @Transactional
     public Cafe actualizarCafe(Cafe cafe) {
@@ -66,16 +70,32 @@ public class CafeService {
         return cafeRepository.save(cafe);
     }
 
+    /**
+     * Elimina un café del sistema por su ID.
+     * 
+     * @param id ID del café a eliminar
+     */
     @Transactional
     public void eliminarCafe(Integer id) {
         cafeRepository.deleteById(id);
     }
 
+    /**
+     * Obtiene todos los cafés registrados en el sistema.
+     * 
+     * @return Lista de todos los cafés
+     */
     @Transactional(readOnly = true)
     public Page<Cafe> getAllCafes(Pageable pageable) {
         return cafeRepository.findAll(pageable);
     }
 
+    /**
+     * Busca un café por su ID.
+     * 
+     * @param id ID del café a buscar
+     * @return Optional que puede contener el café si existe
+     */
     public Optional<Cafe> getCafeById(Integer id) {
         return cafeRepository.findById(id);
     }

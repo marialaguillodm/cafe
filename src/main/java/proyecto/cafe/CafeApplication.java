@@ -16,7 +16,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * - Almacenamiento en memoria
  * @author Maria
  * @version 1.0
- * @since 2024
  */
 @SpringBootApplication
 public class CafeApplication {

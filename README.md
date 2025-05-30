@@ -1,137 +1,108 @@
-# Sistema de Gestión de Café
+# Sistema de Gestión de Cafetería
 
-Sistema de gestión para una cafetería desarrollado con Spring Boot. Permite administrar productos, clientes y órdenes de manera eficiente.
-
-## Características
-
-- Gestión de productos de café (CRUD)
-- Gestión de clientes (CRUD)
-- Gestión de órdenes con cálculo automático de totales
-- Validación de datos
-- Almacenamiento en memoria
-- API RESTful
+## Descripción
+Sistema de gestión para una cafetería que permite administrar productos (cafés), clientes y órdenes. Desarrollado con Spring Boot y Thymeleaf.
 
 ## Tecnologías Utilizadas
-
 - Java 17
 - Spring Boot 3.x
+- Spring Data JPA
+- Thymeleaf
+- Bootstrap 5.3.0
+- MySQL
 - Maven
-- RESTful API
+
+## Características
+- Gestión de productos (cafés)
+  - Crear, actualizar, eliminar y listar cafés
+  - Validación de datos
+  - Paginación de resultados
+
+- Gestión de clientes
+  - Registro y actualización de clientes
+  - Validación de datos
+  - Historial de órdenes por cliente
+
+- Gestión de órdenes
+  - Creación de órdenes con múltiples items
+  - Cálculo automático de totales
+  - Validación de stock y precios
+  - Historial de órdenes
 
 ## Estructura del Proyecto
-
 ```
 src/main/java/proyecto/cafe/
-├── CafeApplication.java
-├── controller/
-│   ├── CafeController.java
-│   ├── CustomerController.java
-│   └── OrderController.java
-├── entity/
-│   ├── Cafe.java
-│   ├── Customer.java
-│   ├── Order.java
-│   └── OrderItem.java
-├── repository/
-│   ├── CafeRepository.java
-│   ├── CustomerRepository.java
-│   └── OrderRepository.java
-└── service/
-    ├── CafeService.java
-    ├── CustomerService.java
-    └── OrderService.java
-```
-
-## Endpoints de la API
-
-### Cafés
-- `GET /cafe` - Obtener todos los cafés
-- `POST /cafe` - Crear un nuevo café
-- `PUT /cafe/{id}` - Actualizar un café existente
-- `PATCH /cafe/{id}` - Actualizar parcialmente un café
-- `DELETE /cafe/{id}` - Eliminar un café
-
-### Clientes
-- `POST /customers` - Crear un nuevo cliente
-- `PUT /customers/{id}` - Actualizar un cliente existente
-- `DELETE /customers/{id}` - Eliminar un cliente
-
-### Órdenes
-- `GET /orders` - Obtener todas las órdenes
-- `GET /orders/{id}` - Obtener una orden por ID
-- `GET /orders/customer/{customerId}` - Obtener órdenes por cliente
-- `POST /orders` - Crear una nueva orden
-
-## Modelos de Datos
-
-### Café
-```json
-{
-    "id": 1,
-    "nombre": "Espresso",
-    "descripcion": "Café concentrado",
-    "precio": 2.50
-}
-```
-
-### Cliente
-```json
-{
-    "id": 1,
-    "usuario": "Marina Mariscal"
-}
-```
-
-### Orden
-```json
-{
-    "id": 1,
-    "customerId": 1,
-    "items": [
-        {
-            "cafeId": 1,
-            "cantidad": 2
-        }
-    ],
-    "total": 5.00,
-    "fechaCreacion": "2024-03-20T10:30:00"
-}
+├── controller/    # Controladores REST y MVC
+├── entity/        # Entidades JPA
+├── repository/    # Repositorios de datos
+├── service/       # Lógica de negocio
+└── Application.java
 ```
 
 ## Requisitos
-
 - Java 17 o superior
 - Maven 3.6 o superior
+- MySQL 8.0 o superior
 
-## Instalación
-
-1. Clonar el repositorio:
+## Configuración
+1. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/cafe.git
+git clone [url-del-repositorio]
 ```
 
-2. Navegar al directorio del proyecto:
-```bash
-cd cafe
+2. Configurar la base de datos en `application.properties`
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/cafe_db
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_password
 ```
 
-3. Compilar el proyecto:
+3. Compilar el proyecto
 ```bash
 mvn clean install
 ```
 
-4. Ejecutar la aplicación:
+4. Ejecutar la aplicación
 ```bash
 mvn spring-boot:run
 ```
 
-La aplicación estará disponible en `http://localhost:8080`
+## Uso
+1. Acceder a la aplicación en `http://localhost:8080`
+2. Navegar por las diferentes secciones:
+   - `/pages/cafes` - Gestión de cafés
+   - `/pages/customers` - Gestión de clientes
+   - `/pages/orders` - Gestión de órdenes
+
+## API REST
+### Cafés
+- `GET /api/cafes` - Listar todos los cafés
+- `POST /api/cafes` - Crear un nuevo café
+- `PUT /api/cafes/{id}` - Actualizar un café
+- `DELETE /api/cafes/{id}` - Eliminar un café
+
+### Clientes
+- `GET /api/customers` - Listar todos los clientes
+- `POST /api/customers` - Crear un nuevo cliente
+- `PUT /api/customers/{id}` - Actualizar un cliente
+- `DELETE /api/customers/{id}` - Eliminar un cliente
+
+### Órdenes
+- `GET /api/orders` - Listar todas las órdenes
+- `POST /api/orders` - Crear una nueva orden
+- `DELETE /api/orders/{id}` - Eliminar una orden
+- `GET /api/orders/customer/{customerId}` - Obtener órdenes por cliente
+
+## Contribución
+1. Fork el proyecto
+2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir un Pull Request
 
 ## Autor
-
-- María Laguillo del Moral
+Maria
 
 ## Versión
-
-1.0.0
+1.5
 
