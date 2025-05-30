@@ -289,6 +289,8 @@
                         const error = await response.text();
                         alert('Error al actualizar el cliente: ' + error);
                     }
+                     // Cambiar el encabezado
+                    document.getElementById('formHeader').textContent = 'Añadir Nuevo Cliente';
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Error al actualizar el cliente');

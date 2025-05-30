@@ -263,6 +263,8 @@
                         const error = await response.text();
                         alert('Error al actualizar el café: ' + error);
                     }
+                    // Cambiar el encabezado
+                    document.getElementById('formHeader').textContent = 'Añadir Nuevo Café';
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Error al actualizar el café');

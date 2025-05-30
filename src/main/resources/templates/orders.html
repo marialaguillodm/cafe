@@ -151,27 +151,90 @@
             }
         }
 
+        // Agregar nuevo item
+        document.getElementById('addItem').addEventListener('click', () => {
+            const container = document.getElementById('itemsContainer');
+            const newRow = container.querySelector('.item-row').cloneNode(true);
+            
+            // Limpiar los valores del nuevo item
+            const cafeSelect = newRow.querySelector('.cafe-select');
+            const quantityInput = newRow.querySelector('.quantity-input');
+            const priceInput = newRow.querySelector('.price-input');
+            
+            cafeSelect.value = '';
+            quantityInput.value = '1';
+            priceInput.value = '';
+            
+            // Agregar el nuevo item al contenedor
+            container.appendChild(newRow);
+            
+            // Cargar los cafés solo en el nuevo select
+            loadCafesForSelect(cafeSelect);
+            
+            // Agregar event listeners específicos para este item
+            cafeSelect.addEventListener('change', function() {
+                updatePrice(this);
+            });
+            
+            quantityInput.addEventListener('input', function() {
+                updateTotal();
+            });
+        });
+
+        // Función para cargar cafés en un select específico
+        async function loadCafesForSelect(select) {
+            try {
+                const response = await fetch('/api/cafes?page=0&size=100');
+                const data = await response.json();
+                
+                // Guardar el valor actualmente seleccionado
+                const currentValue = select.value;
+                
+                // Limpiar y llenar el select
+                select.innerHTML = '<option value="">Seleccione un café</option>';
+                data.content.forEach(cafe => {
+                    const option = document.createElement('option');
+                    option.value = cafe.id;
+                    option.textContent = `${cafe.nombre} - ${cafe.precio}€`;
+                    option.dataset.price = cafe.precio;
+                    select.appendChild(option);
+                });
+                
+                // Restaurar el valor seleccionado si existía
+                if (currentValue) {
+                    select.value = currentValue;
+                }
+            } catch (error) {
+                console.error('Error al cargar cafés:', error);
+            }
+        }
+
         // Actualizar precio cuando se selecciona un café
         function updatePrice(select) {
             const priceInput = select.closest('.item-row').querySelector('.price-input');
             const option = select.options[select.selectedIndex];
             if (option.dataset.price) {
                 priceInput.value = option.dataset.price;
+                updateTotal();
             } else {
                 priceInput.value = '';
             }
         }
 
-        // Agregar nuevo item
-        document.getElementById('addItem').addEventListener('click', () => {
-            const container = document.getElementById('itemsContainer');
-            const newRow = container.querySelector('.item-row').cloneNode(true);
-            newRow.querySelector('.cafe-select').value = '';
-            newRow.querySelector('.quantity-input').value = '1';
-            newRow.querySelector('.price-input').value = '';
-            container.appendChild(newRow);
-            loadCafes();
-        });
+        // Función para actualizar el total
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
+                const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                total += quantity * price;
+            });
+            // Actualizar el total en el formulario si existe el campo
+            const totalInput = document.getElementById('total');
+            if (totalInput) {
+                totalInput.value = total.toFixed(2) + '€';
+            }
+        }
 
         // Eliminar item
         document.addEventListener('click', (e) => {
@@ -179,14 +242,8 @@
                 const container = document.getElementById('itemsContainer');
                 if (container.children.length > 1) {
                     e.target.closest('.item-row').remove();
+                    updateTotal();
                 }
-            }
-        });
-
-        // Actualizar precio al cambiar café
-        document.addEventListener('change', (e) => {
-            if (e.target.classList.contains('cafe-select')) {
-                updatePrice(e.target);
             }
         });
 
