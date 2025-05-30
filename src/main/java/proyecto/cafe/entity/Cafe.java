@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
  * Esta entidad almacena la información básica de un café,
  * incluyendo su nombre, descripción y precio.
  * @author Maria
- * @version 1.0
+ * @version 1.2
  */
 @Entity
 @Table(name = "cafes")

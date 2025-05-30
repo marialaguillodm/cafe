@@ -12,10 +12,16 @@ import proyecto.cafe.service.CustomerService;
 import java.util.List;
 
 /**
- * REST controller for managing customers.
- * Provides endpoints for CRUD operations on customers.
+ * Controlador REST que maneja las operaciones relacionadas con clientes.
+ * Proporciona endpoints para realizar operaciones CRUD sobre la entidad Customer.
+ * Endpoints disponibles:
+ * - GET /customers: Obtener todos los clientes
+ * - POST /customers: Crear un nuevo cliente
+ * - PUT /customers/{id}: Actualizar un cliente existente
+ * - DELETE /customers/{id}: Eliminar un cliente
+ * - GET /customers/{id}: Obtener un cliente por su ID
  * @author Maria
- * @version 1.0
+ * @version 1.5
  */
 @RestController
 @RequestMapping("/api/customers")
@@ -26,8 +32,10 @@ public class CustomerController {
     private CustomerService customerService;
 
     /**
-     * Get all customers.
-     * @return List of all customers
+     * Obtiene todos los clientes registrados.
+     * @param page Número de página (comienza en 0)
+     * @param size Tamaño de la página
+     * @return ResponseEntity con la lista paginada de clientes o mensaje de error
      */
     @GetMapping
     public ResponseEntity<Page<Customer>> getAllCustomers(
@@ -42,9 +50,9 @@ public class CustomerController {
     }
 
     /**
-     * Get a customer by ID.
-     * @param id Customer ID
-     * @return Customer or error message
+     * Obtiene un cliente por su ID.
+     * @param id ID del cliente a obtener
+     * @return ResponseEntity con el cliente encontrado o mensaje de error
      */
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable Integer id) {
@@ -58,9 +66,9 @@ public class CustomerController {
     }
 
     /**
-     * Create a new customer.
-     * @param customer Customer to create
-     * @return Created customer or error message
+     * Crea un nuevo cliente.
+     * @param customer Datos del cliente a crear
+     * @return ResponseEntity con el cliente creado o mensaje de error
      */
     @PostMapping
     public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
@@ -78,10 +86,10 @@ public class CustomerController {
     }
 
     /**
-     * Update an existing customer.
-     * @param id Customer ID
-     * @param customer Updated customer data
-     * @return Updated customer or error message
+     * Actualiza completamente un cliente existente.
+     * @param id ID del cliente a actualizar
+     * @param customer Nuevos datos del cliente
+     * @return ResponseEntity con el cliente actualizado o mensaje de error
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody Customer customer) {
@@ -100,9 +108,9 @@ public class CustomerController {
     }
 
     /**
-     * Delete a customer.
-     * @param id Customer ID
-     * @return Success message or error
+     * Elimina un cliente por su ID.
+     * @param id ID del cliente a eliminar
+     * @return ResponseEntity con mensaje de éxito o error
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable Integer id) {

@@ -12,6 +12,18 @@ import proyecto.cafe.service.OrderService;
 
 import java.util.List;
 
+/**
+ * Controlador REST que maneja las operaciones relacionadas con órdenes.
+ * Proporciona endpoints para realizar operaciones CRUD sobre la entidad Order.
+ * Endpoints disponibles:
+ * - GET /orders: Obtener todas las órdenes
+ * - POST /orders: Crear una nueva orden
+ * - DELETE /orders/{id}: Eliminar una orden
+ * - GET /orders/{id}: Obtener una orden por su ID
+ * - GET /orders/customer/{customerId}: Obtener órdenes por cliente
+ * @author Maria
+ * @version 1.5
+ */
 @RestController
 @RequestMapping("/api/orders")
 @CrossOrigin(origins = "*")
@@ -19,6 +31,12 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    /**
+     * Obtiene todas las órdenes registradas.
+     * @param page Número de página (comienza en 0)
+     * @param size Tamaño de la página
+     * @return ResponseEntity con la lista paginada de órdenes o mensaje de error
+     */
     @GetMapping
     public ResponseEntity<Page<Order>> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
@@ -31,6 +49,11 @@ public class OrderController {
         }
     }
 
+    /**
+     * Obtiene una orden por su ID.
+     * @param id ID de la orden a obtener
+     * @return ResponseEntity con la orden encontrada o mensaje de error
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Integer id) {
         try {
@@ -42,6 +65,11 @@ public class OrderController {
         }
     }
 
+    /**
+     * Crea una nueva orden.
+     * @param order Datos de la orden a crear
+     * @return ResponseEntity con la orden creada o mensaje de error
+     */
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody Order order) {
         try {
@@ -57,6 +85,11 @@ public class OrderController {
         }
     }
 
+    /**
+     * Elimina una orden por su ID.
+     * @param id ID de la orden a eliminar
+     * @return ResponseEntity con mensaje de éxito o error
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable Integer id) {
         try {

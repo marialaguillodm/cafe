@@ -8,7 +8,7 @@ import proyecto.cafe.entity.Cafe;
  * Repositorio para la entidad Cafe.
  * Proporciona métodos para acceder y manipular los datos de cafés en la base de datos.
  * @author Maria
- * @version 1.0
+ * @version 1.3
  */
 @Repository
 public interface CafeRepository extends JpaRepository<Cafe, Integer> {

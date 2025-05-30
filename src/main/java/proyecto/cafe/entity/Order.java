@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an order in the system.
- * This entity stores order information,
- * including customer, items and total.
+ * Representa una orden en el sistema.
+ * Esta entidad almacena la información de una orden,
+ * incluyendo el cliente, los items y el total.
+ * 
  * @author Maria
- * @version 1.0
+ * @version 1.5
  */
 @Entity
 @Table(name = "orders")
@@ -35,6 +36,7 @@ public class Order {
 
     /**
      * Constructor por defecto.
+     * Inicializa la fecha de creación con la fecha y hora actual.
      */
     public Order() {
         this.creationDate = LocalDateTime.now();
@@ -43,7 +45,7 @@ public class Order {
     /**
      * Constructor con todos los campos.
      * @param id Identificador único de la orden
-     * @param customer Cliente de la orden
+     * @param customer Cliente que realiza la orden
      * @param items Lista de items en la orden
      */
     public Order(Integer id, Customer customer, List<OrderItem> items) {
@@ -54,8 +56,9 @@ public class Order {
     }
 
     /**
-     * Calcula el total de la orden multiplicando el precio unitario por la cantidad de cada item.
-     * El precio unitario se obtiene del café y la cantidad se especifica en el item.
+     * Calcula el total de la orden.
+     * Multiplica el precio unitario por la cantidad de cada item
+     * y suma todos los subtotales.
      */
     public void calculateTotal() {
         if (items != null) {
@@ -68,43 +71,83 @@ public class Order {
         }
     }
 
+    /**
+     * Obtiene el identificador único de la orden.
+     * @return ID de la orden
+     */
     public Integer getId() {
         return id;
     }
 
+    /**
+     * Establece el identificador único de la orden.
+     * @param id Nuevo ID de la orden
+     */
     public void setId(Integer id) {
         this.id = id;
     }
 
+    /**
+     * Obtiene el cliente de la orden.
+     * @return Cliente que realizó la orden
+     */
     public Customer getCustomer() {
         return customer;
     }
 
+    /**
+     * Establece el cliente de la orden.
+     * @param customer Nuevo cliente de la orden
+     */
     public void setCustomer(Customer customer) {
         this.customer = customer;
     }
 
+    /**
+     * Obtiene la lista de items de la orden.
+     * @return Lista de items en la orden
+     */
     public List<OrderItem> getItems() {
         return items;
     }
 
+    /**
+     * Establece la lista de items de la orden.
+     * @param items Nueva lista de items
+     */
     public void setItems(List<OrderItem> items) {
         this.items = items;
         calculateTotal();
     }
 
+    /**
+     * Obtiene el total de la orden.
+     * @return Total de la orden
+     */
     public Double getTotal() {
         return total;
     }
 
+    /**
+     * Establece el total de la orden.
+     * @param total Nuevo total de la orden
+     */
     public void setTotal(Double total) {
         this.total = total;
     }
 
+    /**
+     * Obtiene la fecha de creación de la orden.
+     * @return Fecha y hora de creación
+     */
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
+    /**
+     * Establece la fecha de creación de la orden.
+     * @param creationDate Nueva fecha y hora de creación
+     */
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }

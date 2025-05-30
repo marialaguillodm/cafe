@@ -7,9 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import proyecto.cafe.entity.Cafe;
-import proyecto.cafe.entity.Customer;
 import proyecto.cafe.service.CafeService;
-import proyecto.cafe.service.OrderService;
 
 import java.util.List;
 
@@ -22,10 +20,8 @@ import java.util.List;
  * - PUT /cafes/{id}: Actualizar un café existente
  * - PATCH /cafes/{id}: Actualizar parcialmente un café
  * - DELETE /cafes/{id}: Eliminar un café
- * - GET /cafes/customer/{customerId}: Obtener pedidos por cliente
- *
  * @author Maria
- * @version 1.0
+ * @version 1.5
  */
 @RestController
 @RequestMapping("/api/cafes")
@@ -34,9 +30,6 @@ public class CafeController {
 
     @Autowired
     private CafeService cafeService;
-
-    @Autowired
-    private OrderService orderService;
 
     /**
      * Obtiene todos los cafés registrados.
@@ -129,22 +122,5 @@ public class CafeController {
         }
     }
 
-    /**
-     * Obtiene pedidos por cliente.
-     * @param customer ID del cliente
-     * @return ResponseEntity con la lista de pedidos o mensaje de error
-     */
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<?> getOrdersByCustomer(@PathVariable Customer customer) {
-        try {
-            var orders = orderService.getOrdersByCustomer(customer);
-            if (orders.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(orders);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
 }

@@ -3,11 +3,12 @@ package proyecto.cafe.entity;
 import jakarta.persistence.*;
 
 /**
- * Represents a customer in the system.
- * This entity stores basic customer information,
- * including name and email.
+ * Representa un cliente en el sistema.
+ * Esta entidad almacena la información básica de un cliente,
+ * incluyendo su nombre y correo electrónico.
+ * 
  * @author Maria
- * @version 1.0
+ * @version 1.3
  */
 @Entity
 @Table(name = "customers")
