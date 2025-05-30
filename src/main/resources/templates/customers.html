@@ -333,11 +333,16 @@
                     if (response.ok) {
                         await cargarClientes();
                     } else {
-                        alert('Error al eliminar el cliente');
+                        const errorText = await response.text();
+                        if (errorText.includes("foreign key constraint") || errorText.includes("FKpxtb8awmi0dk6smoh2vp1litg")) {
+                            alert('No se puede eliminar este cliente porque tiene órdenes asociadas.\n\nPor favor, elimine primero todas las órdenes del cliente antes de eliminarlo.');
+                        } else {
+                            alert('Error al eliminar el cliente: ' + errorText);
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al eliminar el cliente');
+                    alert('Error al eliminar el cliente. Por favor, intente nuevamente.');
                 }
             }
         }
